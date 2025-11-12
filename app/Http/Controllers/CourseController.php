@@ -10,13 +10,25 @@ class CourseController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Course::where('status', 'published')->with('teacher');
+        $query = Course::where('status', 'published')->with(['teacher', 'category', 'tags']);
 
         // Поиск
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Фильтр по категории
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Фильтр по тегам
+        if ($request->filled('tag')) {
+            $query->whereHas('tags', function($q) use ($request) {
+                $q->where('tags.id', $request->tag);
             });
         }
 
@@ -67,6 +79,7 @@ class CourseController extends Controller
 
         // Популярные курсы
         $popularCourses = Course::where('status', 'published')
+            ->with(['category', 'tags', 'teacher'])
             ->withCount('enrollments')
             ->orderBy('enrollments_count', 'desc')
             ->take(3)
@@ -78,7 +91,11 @@ class CourseController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('courses.index', compact('courses', 'stats', 'popularCourses', 'teachers'));
+        // Категории и теги для фильтров
+        $categories = \App\Models\Category::orderBy('name')->get();
+        $tags = \App\Models\Tag::orderBy('name')->get();
+
+        return view('courses.index', compact('courses', 'stats', 'popularCourses', 'teachers', 'categories', 'tags'));
     }
 
     public function show(Course $course): View
