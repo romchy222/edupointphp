@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class ContactMessage extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'subject',
+        'message',
+        'status',
+        'admin_reply',
+        'replied_at',
+    ];
+
+    protected $casts = [
+        'replied_at' => 'datetime',
+    ];
+
+    public function isNew(): bool
+    {
+        return $this->status === 'new';
+    }
+
+    public function markAsReplied(): void
+    {
+        $this->update([
+            'status' => 'resolved',
+            'replied_at' => now(),
+        ]);
+    }
+}

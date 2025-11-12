@@ -1,0 +1,105 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Course extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'description',
+        'thumbnail',
+        'price',
+        'deadline',
+        'teacher_id',
+        'category_id',
+        'status',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'deadline' => 'date',
+    ];
+
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    public function lessons(): HasMany
+    {
+        return $this->hasMany(Lesson::class)->orderBy('order');
+    }
+
+    public function modules(): HasMany
+    {
+        return $this->hasMany(CourseModule::class)->orderBy('order');
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function tests(): HasMany
+    {
+        return $this->hasMany(Test::class);
+    }
+
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function isEnrolledBy(User $user): bool
+    {
+        return $this->enrollments()->where('user_id', $user->id)->exists();
+    }
+
+    public function getProgressFor(User $user): int
+    {
+        $totalLessons = $this->lessons()->count();
+        if ($totalLessons === 0) {
+            return 0;
+        }
+
+        $completedLessons = LessonProgress::whereIn('lesson_id', $this->lessons()->pluck('id'))
+            ->where('user_id', $user->id)
+            ->where('completed', true)
+            ->count();
+
+        return (int) (($completedLessons / $totalLessons) * 100);
+    }
+
+    public function averageRating(): float
+    {
+        return round($this->reviews()->avg('rating') ?? 0, 1);
+    }
+
+    public function reviewsCount(): int
+    {
+        return $this->reviews()->count();
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+}
