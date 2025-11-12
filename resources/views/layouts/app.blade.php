@@ -148,9 +148,70 @@
         </div>
     </main>
 
-    <footer class="bg-light py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0">&copy; {{ date('Y') }} EduPoint. Все права защищены.</p>
+    <footer class="bg-dark text-white mt-5">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-book"></i> EduPoint
+                    </h5>
+                    <p class="text-white-50">
+                        Современная платформа для онлайн-обучения. Учитесь у лучших преподавателей, 
+                        развивайтесь и достигайте своих целей.
+                    </p>
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="text-white-50 hover-text-white"><i class="bi bi-facebook fs-4"></i></a>
+                        <a href="#" class="text-white-50 hover-text-white"><i class="bi bi-twitter fs-4"></i></a>
+                        <a href="#" class="text-white-50 hover-text-white"><i class="bi bi-instagram fs-4"></i></a>
+                        <a href="#" class="text-white-50 hover-text-white"><i class="bi bi-linkedin fs-4"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3">Навигация</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ route('home') }}" class="text-white-50 text-decoration-none">Главная</a></li>
+                        <li class="mb-2"><a href="{{ route('courses.index') }}" class="text-white-50 text-decoration-none">Курсы</a></li>
+                        <li class="mb-2"><a href="{{ route('about') }}" class="text-white-50 text-decoration-none">О нас</a></li>
+                        @auth
+                            <li class="mb-2"><a href="{{ route('courses.my') }}" class="text-white-50 text-decoration-none">Мои курсы</a></li>
+                        @endauth
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3">Категории</h5>
+                    <ul class="list-unstyled">
+                        @php
+                            $footerCategories = \App\Models\Category::orderBy('name')->limit(5)->get();
+                        @endphp
+                        @foreach($footerCategories as $category)
+                            <li class="mb-2">
+                                <a href="{{ route('courses.index', ['category' => $category->id]) }}" 
+                                   class="text-white-50 text-decoration-none">
+                                    {{ $category->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="mb-3">Контакты</h5>
+                    <ul class="list-unstyled text-white-50">
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Москва, Россия</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i> info@edupoint.ru</li>
+                        <li class="mb-2"><i class="bi bi-phone me-2"></i> +7 (495) 123-45-67</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-white-50 mb-0">&copy; {{ date('Y') }} EduPoint. Все права защищены.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-white-50 text-decoration-none me-3">Политика конфиденциальности</a>
+                    <a href="#" class="text-white-50 text-decoration-none">Условия использования</a>
+                </div>
+            </div>
         </div>
     </footer>
 
