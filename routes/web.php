@@ -18,6 +18,7 @@ Route::get('/', [CourseController::class, 'index'])->name('home');
 // Статичные страницы
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::post('/contact', [PageController::class, 'contact'])->name('contact.send');
+Route::get('/leaderboard', [\App\Http\Controllers\LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 // Маршруты для гостей
 Route::middleware('guest')->group(function () {
@@ -76,6 +77,10 @@ Route::middleware('auth')->group(function () {
     // Отзывы
     Route::post('/courses/{course}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Избранное
+    Route::get('/favorites', [\App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/courses/{course}/favorite', [\App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
 
     // Управление курсами (для преподавателей)
     Route::middleware('can:create,App\Models\Course')->group(function () {

@@ -326,11 +326,25 @@
                     @else
                         <form action="{{ route('courses.enroll', $course) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-success w-100">
+                            <button type="submit" class="btn btn-success w-100 mb-2">
                                 <i class="bi bi-bookmark-plus"></i> Записаться на курс
                             </button>
                         </form>
                     @endif
+
+                    <!-- Кнопка избранного -->
+                    <form action="{{ route('favorites.toggle', $course) }}" method="POST" class="mt-2">
+                        @csrf
+                        @if($course->isFavoritedBy(auth()->user()))
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-heart-fill"></i> В избранном
+                            </button>
+                        @else
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-heart"></i> Добавить в избранное
+                            </button>
+                        @endif
+                    </form>
 
                     @if(auth()->user()->isTeacher() && auth()->id() == $course->teacher_id)
                         <hr>
@@ -354,6 +368,29 @@
                         <li><i class="bi bi-clipboard-check"></i> {{ $course->tests->count() }} тестов</li>
                     @endif
                 </ul>
+
+                <hr>
+                <h6 class="mb-2"><i class="bi bi-share"></i> Поделиться</h6>
+                <div class="d-flex gap-2">
+                    <a href="https://vk.com/share.php?url={{ urlencode(route('courses.show', $course)) }}&title={{ urlencode($course->title) }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-outline-primary flex-grow-1"
+                       title="Поделиться в VK">
+                        <i class="bi bi-share"></i> VK
+                    </a>
+                    <a href="https://t.me/share/url?url={{ urlencode(route('courses.show', $course)) }}&text={{ urlencode($course->title) }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-outline-info flex-grow-1"
+                       title="Поделиться в Telegram">
+                        <i class="bi bi-telegram"></i> TG
+                    </a>
+                    <a href="https://wa.me/?text={{ urlencode($course->title . ' ' . route('courses.show', $course)) }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-outline-success flex-grow-1"
+                       title="Поделиться в WhatsApp">
+                        <i class="bi bi-whatsapp"></i> WA
+                    </a>
+                </div>
             </div>
         </div>
     </div>

@@ -29,6 +29,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('courses.my') }}">Мои курсы</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('favorites.index') }}">
+                                <i class="bi bi-heart"></i> Избранное
+                            </a>
+                        </li>
                         @if(auth()->user()->isTeacher() || auth()->user()->isAdmin())
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('courses.create') }}">Создать курс</a>
@@ -172,6 +177,7 @@
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white-50 text-decoration-none">Главная</a></li>
                         <li class="mb-2"><a href="{{ route('courses.index') }}" class="text-white-50 text-decoration-none">Курсы</a></li>
                         <li class="mb-2"><a href="{{ route('about') }}" class="text-white-50 text-decoration-none">О нас</a></li>
+                        <li class="mb-2"><a href="{{ route('leaderboard.index') }}" class="text-white-50 text-decoration-none">Рейтинги</a></li>
                         @auth
                             <li class="mb-2"><a href="{{ route('courses.my') }}" class="text-white-50 text-decoration-none">Мои курсы</a></li>
                         @endauth

@@ -102,4 +102,15 @@ class Course extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'course_favorites')
+            ->withTimestamps();
+    }
+
+    public function isFavoritedBy(User $user): bool
+    {
+        return $this->favoritedBy()->where('user_id', $user->id)->exists();
+    }
 }
