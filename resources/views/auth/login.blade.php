@@ -49,6 +49,12 @@
                         <i class="bi bi-box-arrow-in-right"></i> Войти
                     </button>
 
+                    <div class="text-center mb-3">
+                        <a href="{{ route('password.request') }}" class="text-decoration-none">
+                            <i class="bi bi-key"></i> Забыли пароль?
+                        </a>
+                    </div>
+
                     <div class="text-center">
                         <p class="mb-0">Нет аккаунта? <a href="{{ route('register') }}">Зарегистрироваться</a></p>
                     </div>

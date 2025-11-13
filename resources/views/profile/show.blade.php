@@ -32,10 +32,20 @@
         <div class="card shadow-sm border-0 mb-3">
             <div class="card-body text-center">
                 <div class="profile-avatar mb-3">
-                    <i class="bi bi-person"></i>
+                    @if($user->avatar)
+                        <img src="{{ asset('storage/' . $user->avatar) }}" 
+                             alt="{{ $user->name }}" 
+                             class="rounded-circle"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    @else
+                        <i class="bi bi-person"></i>
+                    @endif
                 </div>
                 <h4 class="mb-1">{{ $user->name }}</h4>
                 <p class="text-muted small mb-2">{{ $user->email }}</p>
+                @if($user->bio)
+                    <p class="text-muted small mb-3">{{ $user->bio }}</p>
+                @endif
                 @php
                     $roleBadge = match($user->role) {
                         'admin' => ['class' => 'danger', 'icon' => 'shield-fill', 'text' => 'Администратор'],
@@ -49,6 +59,18 @@
                 <div class="mt-3 text-muted small">
                     <i class="bi bi-calendar3"></i> Зарегистрирован {{ $user->created_at->format('d.m.Y') }}
                 </div>
+                @if($user->phone)
+                    <div class="mt-2 text-muted small">
+                        <i class="bi bi-telephone"></i> {{ $user->phone }}
+                    </div>
+                @endif
+                @if($user->website)
+                    <div class="mt-2">
+                        <a href="{{ $user->website }}" target="_blank" class="text-decoration-none small">
+                            <i class="bi bi-globe"></i> Веб-сайт
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
 

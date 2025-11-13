@@ -21,9 +21,30 @@
                 <h5 class="mb-0">Информация профиля</h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('profile.update') }}">
+                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label">Аватар</label>
+                        @if(auth()->user()->avatar)
+                            <div class="mb-2">
+                                <img src="{{ asset('storage/' . auth()->user()->avatar) }}" 
+                                     alt="Avatar" 
+                                     class="rounded-circle" 
+                                     style="width: 100px; height: 100px; object-fit: cover;">
+                            </div>
+                        @endif
+                        <input type="file" 
+                               class="form-control @error('avatar') is-invalid @enderror" 
+                               id="avatar" 
+                               name="avatar"
+                               accept="image/*">
+                        <small class="text-muted">Загрузите изображение (JPG, PNG, GIF). Максимум 2MB.</small>
+                        @error('avatar')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                     <div class="mb-3">
                         <label for="name" class="form-label">Имя</label>
@@ -47,6 +68,43 @@
                                value="{{ old('email', auth()->user()->email) }}" 
                                required>
                         @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">О себе</label>
+                        <textarea class="form-control @error('bio') is-invalid @enderror" 
+                                  id="bio" 
+                                  name="bio" 
+                                  rows="4">{{ old('bio', auth()->user()->bio) }}</textarea>
+                        <small class="text-muted">Расскажите немного о себе (опционально)</small>
+                        @error('bio')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Телефон</label>
+                        <input type="text" 
+                               class="form-control @error('phone') is-invalid @enderror" 
+                               id="phone" 
+                               name="phone" 
+                               value="{{ old('phone', auth()->user()->phone) }}">
+                        @error('phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="website" class="form-label">Веб-сайт</label>
+                        <input type="url" 
+                               class="form-control @error('website') is-invalid @enderror" 
+                               id="website" 
+                               name="website" 
+                               value="{{ old('website', auth()->user()->website) }}"
+                               placeholder="https://example.com">
+                        @error('website')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
