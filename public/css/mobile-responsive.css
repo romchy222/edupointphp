@@ -1,0 +1,238 @@
+/* Mobile Responsive Improvements for EduPoint */
+
+/* General Mobile Improvements */
+@media (max-width: 768px) {
+    /* Navigation adjustments */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.5rem 1rem;
+    }
+    
+    /* Search form in mobile */
+    .navbar form[role="search"] {
+        margin-top: 1rem;
+        width: 100%;
+    }
+    
+    .navbar form[role="search"] input {
+        min-width: 100% !important;
+    }
+    
+    /* Course cards */
+    .course-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Tables */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+    
+    /* Badges */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.55em;
+    }
+    
+    /* Cards */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 18px !important;
+        font-size: 0.75rem;
+    }
+    
+    /* Typography */
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+    }
+    
+    h4 {
+        font-size: 1.1rem;
+    }
+    
+    h5 {
+        font-size: 1rem;
+    }
+    
+    /* Footer adjustments */
+    footer .col-md-3 {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Profile page */
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    /* Stats cards */
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Form controls */
+    .form-control, .form-select {
+        font-size: 0.95rem;
+    }
+    
+    /* Notification dropdown */
+    .dropdown-menu {
+        min-width: 280px !important;
+        max-width: 90vw;
+    }
+    
+    /* Modal dialogs */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    /* Lesson content */
+    .lesson-content img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Video player */
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        height: 0;
+        overflow: hidden;
+    }
+    
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+    /* Container padding */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Hide some columns in tables */
+    .table .d-sm-none {
+        display: none !important;
+    }
+    
+    /* Stack buttons vertically */
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Card titles */
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    /* Alert messages */
+    .alert {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+    }
+    
+    /* Navigation */
+    .navbar-collapse {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        margin-top: 0.5rem;
+        border-radius: 0.5rem;
+    }
+}
+
+/* Tablet devices */
+@media (min-width: 768px) and (max-width: 992px) {
+    .col-md-4 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+/* Touch-friendly improvements for all devices */
+.btn, .nav-link, .dropdown-item, .list-group-item-action {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+/* Improve touch targets */
+.form-check-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+/* Better spacing for mobile forms */
+@media (max-width: 768px) {
+    .mb-3, .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Accessibility improvements */
+.btn:focus, .form-control:focus, .form-select:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Loading states */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
