@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 // Главная страница - список курсов
 Route::get('/', [CourseController::class, 'index'])->name('home');
 
+// Поиск
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search.index');
+
 // Статичные страницы
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::post('/contact', [PageController::class, 'contact'])->name('contact.send');

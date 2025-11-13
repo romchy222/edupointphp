@@ -46,6 +46,15 @@
                         @endif
                     @endauth
                 </ul>
+                
+                <!-- Search Form -->
+                <form action="{{ route('search.index') }}" method="GET" class="d-flex me-3" role="search">
+                    <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Поиск..." aria-label="Search" style="min-width: 200px;">
+                    <button class="btn btn-outline-light btn-sm" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+                
                 <ul class="navbar-nav">
                     @guest
                         <li class="nav-item">
