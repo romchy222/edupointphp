@@ -105,6 +105,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/favorites', [\App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/courses/{course}/favorite', [\App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
 
+    // Скачивание материалов урока
+    Route::get('/lessons/{lesson}/attachments/{attachment}/download', [LessonController::class, 'downloadAttachment'])->name('lessons.attachment.download');
+
     // Управление курсами (для преподавателей)
     Route::middleware('can:create,App\Models\Course')->group(function () {
         Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');

@@ -17,7 +17,7 @@ class LessonController extends Controller
             abort(403, 'Вы должны записаться на курс для просмотра этого урока.');
         }
 
-        $lesson->load(['course', 'comments.user']);
+        $lesson->load(['course', 'comments.user', 'attachments']);
         $isCompleted = $lesson->isCompletedBy(auth()->user());
         
         // Получаем следующий и предыдущий урок
@@ -203,5 +203,18 @@ class LessonController extends Controller
 
         return redirect()->route('lessons.show', [$course, $lesson])
             ->with('success', 'Комментарий удален!');
+    }
+
+    public function downloadAttachment(Lesson $lesson, \App\Models\LessonAttachment $attachment)
+    {
+        // Проверка доступа
+        if (!$lesson->is_free && !$lesson->course->isEnrolledBy(auth()->user())) {
+            abort(403, 'Вы должны записаться на курс для скачивания материалов.');
+        }
+
+        // Increment download count
+        $attachment->incrementDownloadCount();
+
+        return response()->download(storage_path('app/public/' . $attachment->file_path));
     }
 }
