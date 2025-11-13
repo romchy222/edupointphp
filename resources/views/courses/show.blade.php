@@ -298,6 +298,23 @@
                     <a href="{{ route('login') }}" class="btn btn-primary w-100">Войти</a>
                 @else
                     @if($isEnrolled)
+                        <!-- Progress Widget -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">Ваш прогресс</span>
+                                <span class="fw-bold text-primary">{{ $progress }}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-gradient" 
+                                     style="width: {{ $progress }}%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"
+                                     role="progressbar">
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                {{ $completedLessons ?? 0 }} из {{ $course->lessons->count() }} уроков завершено
+                            </div>
+                        </div>
+
                         @if($progress == 100)
                             <div class="alert alert-success">
                                 <i class="bi bi-trophy"></i> Курс завершен!

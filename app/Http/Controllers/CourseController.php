@@ -100,21 +100,26 @@ class CourseController extends Controller
 
     public function show(Course $course): View
     {
-        $course->load(['teacher', 'lessons', 'tests', 'reviews.user']);
+        $course->load(['teacher', 'lessons', 'tests', 'reviews.user', 'category', 'tags']);
         
         $isEnrolled = false;
         $progress = 0;
+        $completedLessons = 0;
         $hasReviewed = false;
 
         if (auth()->check()) {
             $isEnrolled = $course->isEnrolledBy(auth()->user());
             if ($isEnrolled) {
                 $progress = $course->getProgressFor(auth()->user());
+                $completedLessons = \App\Models\LessonProgress::whereIn('lesson_id', $course->lessons->pluck('id'))
+                    ->where('user_id', auth()->id())
+                    ->where('completed', true)
+                    ->count();
             }
             $hasReviewed = $course->reviews()->where('user_id', auth()->id())->exists();
         }
 
-        return view('courses.show', compact('course', 'isEnrolled', 'progress', 'hasReviewed'));
+        return view('courses.show', compact('course', 'isEnrolled', 'progress', 'completedLessons', 'hasReviewed'));
     }
 
     public function myCourses(): View
