@@ -42,10 +42,27 @@
                 </span>
             @endif
             
+            <span class="badge bg-{{ $course->getLevelBadgeClass() }}">
+                <i class="bi bi-bar-chart"></i> {{ $course->getLevelLabel() }}
+            </span>
+
+            @if($course->duration_hours)
+                <span class="badge bg-info">
+                    <i class="bi bi-clock"></i> {{ $course->getFormattedDuration() }}
+                </span>
+            @endif
+
+            <span class="badge bg-primary">
+                <i class="bi bi-book"></i> {{ $course->lessons->count() }} уроков
+            </span>
+            
             @if($course->tags->count() > 0)
-                @foreach($course->tags as $tag)
+                @foreach($course->tags->take(3) as $tag)
                     <span class="badge bg-secondary">{{ $tag->name }}</span>
                 @endforeach
+                @if($course->tags->count() > 3)
+                    <span class="badge bg-secondary">+{{ $course->tags->count() - 3 }}</span>
+                @endif
             @endif
         </div>
         
@@ -73,6 +90,28 @@
             <h4>Описание курса</h4>
             <p>{{ $course->description }}</p>
         </div>
+
+        @if($course->what_you_will_learn)
+            <div class="card mb-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Чему вы научитесь</h5>
+                </div>
+                <div class="card-body">
+                    <div style="white-space: pre-line;">{{ $course->what_you_will_learn }}</div>
+                </div>
+            </div>
+        @endif
+
+        @if($course->requirements)
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Требования</h5>
+                </div>
+                <div class="card-body">
+                    <div style="white-space: pre-line;">{{ $course->requirements }}</div>
+                </div>
+            </div>
+        @endif
 
         <div class="mb-4">
             <h4><i class="bi bi-list-ul"></i> Программа курса ({{ $course->lessons->count() }} уроков)</h4>

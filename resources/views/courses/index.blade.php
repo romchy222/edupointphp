@@ -255,6 +255,14 @@
                                         <i class="bi {{ $course->category->icon }}"></i> {{ $course->category->name }}
                                     </span>
                                 @endif
+                                @if($course->duration_hours)
+                                    <span class="badge bg-info text-dark">
+                                        <i class="bi bi-clock"></i> {{ $course->getFormattedDuration() }}
+                                    </span>
+                                @endif
+                                <span class="badge bg-{{ $course->getLevelBadgeClass() }}">
+                                    {{ $course->getLevelLabel() }}
+                                </span>
                             </div>
                             <h5 class="card-title">{{ $course->title }}</h5>
                             <p class="card-text text-muted small">{{ Str::limit($course->description, 100) }}</p>
@@ -268,6 +276,13 @@
                                     @endif
                                 </div>
                             @endif
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-star-fill text-warning"></i> 
+                                    {{ $course->averageRating() }} 
+                                    <span class="text-muted">({{ $course->reviewsCount() }})</span>
+                                </small>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted small">
                                     <i class="bi bi-person"></i> {{ $course->teacher->name }}
