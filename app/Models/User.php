@@ -31,6 +31,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'notify_new_lessons',
         'notify_deadlines',
         'notify_comments',
+        'notify_progress',
+        'notify_certificates',
     ];
 
     /**

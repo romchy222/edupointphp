@@ -88,6 +88,10 @@
                                         +{{ auth()->user()->unreadNotifications->count() - 5 }} еще
                                     </li>
                                 @endif
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center" href="{{ route('notifications.index') }}">
+                                    <i class="bi bi-list"></i> Все уведомления
+                                </a></li>
                             </ul>
                         </li>
                         

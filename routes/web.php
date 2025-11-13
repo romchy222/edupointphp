@@ -81,10 +81,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/comments/{comment}', [LessonController::class, 'destroyComment'])->name('lessons.comments.destroy');
 
     // Уведомления
-    Route::post('/notifications/{notification}/read', function($id) {
-        auth()->user()->notifications()->where('id', $id)->first()?->markAsRead();
-        return response()->json(['success' => true]);
-    })->name('notifications.read');
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'settings'])->name('notifications.settings');
+    Route::post('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'updateSettings'])->name('notifications.update-settings');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Тесты
     Route::get('/tests/{test}', [TestController::class, 'show'])->name('tests.show');
