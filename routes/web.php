@@ -113,6 +113,10 @@ Route::middleware('auth')->group(function () {
     // Скачивание материалов урока
     Route::get('/lessons/{lesson}/attachments/{attachment}/download', [LessonController::class, 'downloadAttachment'])->name('lessons.attachment.download');
 
+    // Статистика для преподавателей
+    Route::get('/teacher/stats', [\App\Http\Controllers\TeacherStatsController::class, 'index'])->name('teacher.stats.index');
+    Route::get('/teacher/stats/course/{course}', [\App\Http\Controllers\TeacherStatsController::class, 'courseStats'])->name('teacher.stats.course');
+
     // Управление курсами (для преподавателей)
     Route::middleware('can:create,App\Models\Course')->group(function () {
         Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');

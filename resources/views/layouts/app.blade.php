@@ -38,6 +38,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('courses.create') }}">Создать курс</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('teacher.stats.index') }}">
+                                    <i class="bi bi-graph-up"></i> Статистика
+                                </a>
+                            </li>
                         @endif
                         @if(auth()->user()->isAdmin())
                             <li class="nav-item">
