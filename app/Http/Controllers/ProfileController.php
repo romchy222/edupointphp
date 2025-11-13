@@ -27,7 +27,21 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'avatar' => 'nullable|image|max:2048',
+            'bio' => 'nullable|string|max:1000',
+            'phone' => 'nullable|string|max:20',
+            'website' => 'nullable|url|max:255',
         ]);
+
+        // Handle avatar upload
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar) {
+                \Storage::disk('public')->delete($user->avatar);
+            }
+            
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
         $user->update($validated);
 

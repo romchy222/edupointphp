@@ -46,11 +46,46 @@ class Lesson extends Model
         return $this->hasMany(LessonComment::class)->latest();
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(LessonAttachment::class);
+    }
+
     public function isCompletedBy(User $user): bool
     {
         return $this->progress()
             ->where('user_id', $user->id)
             ->where('completed', true)
             ->exists();
+    }
+
+    /**
+     * Get embedded video HTML for YouTube or Vimeo
+     */
+    public function getEmbeddedVideoHtml(): ?string
+    {
+        if (!$this->video_url) {
+            return null;
+        }
+
+        // YouTube
+        if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/', $this->video_url, $matches)) {
+            $videoId = $matches[1];
+            return '<iframe width="100%" height="500" src="https://www.youtube.com/embed/' . $videoId . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        }
+        
+        // YouTube short URL
+        if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]+)/', $this->video_url, $matches)) {
+            $videoId = $matches[1];
+            return '<iframe width="100%" height="500" src="https://www.youtube.com/embed/' . $videoId . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        }
+
+        // Vimeo
+        if (preg_match('/vimeo\.com\/([0-9]+)/', $this->video_url, $matches)) {
+            $videoId = $matches[1];
+            return '<iframe src="https://player.vimeo.com/video/' . $videoId . '" width="100%" height="500" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+        }
+
+        return null;
     }
 }

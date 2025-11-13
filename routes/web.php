@@ -15,9 +15,13 @@ use Illuminate\Support\Facades\Route;
 // Главная страница - список курсов
 Route::get('/', [CourseController::class, 'index'])->name('home');
 
+// Поиск
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search.index');
+
 // Статичные страницы
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::post('/contact', [PageController::class, 'contact'])->name('contact.send');
+Route::get('/leaderboard', [\App\Http\Controllers\LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 // Маршруты для гостей
 Route::middleware('guest')->group(function () {
@@ -26,6 +30,29 @@ Route::middleware('guest')->group(function () {
     
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    
+    // Password Reset Routes
+    Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\Auth\PasswordResetController::class, 'reset'])->name('password.update');
+});
+
+// Email Verification Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+    
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('home')->with('success', 'Email подтвержден!');
+    })->middleware(['signed'])->name('verification.verify');
+    
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('status', 'Ссылка для подтверждения отправлена!');
+    })->middleware(['throttle:6,1'])->name('verification.send');
 });
 
 // Маршруты для авторизованных пользователей
@@ -57,10 +84,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/comments/{comment}', [LessonController::class, 'destroyComment'])->name('lessons.comments.destroy');
 
     // Уведомления
-    Route::post('/notifications/{notification}/read', function($id) {
-        auth()->user()->notifications()->where('id', $id)->first()?->markAsRead();
-        return response()->json(['success' => true]);
-    })->name('notifications.read');
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'settings'])->name('notifications.settings');
+    Route::post('/notifications/settings', [\App\Http\Controllers\NotificationController::class, 'updateSettings'])->name('notifications.update-settings');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Тесты
     Route::get('/tests/{test}', [TestController::class, 'show'])->name('tests.show');
@@ -76,6 +105,17 @@ Route::middleware('auth')->group(function () {
     // Отзывы
     Route::post('/courses/{course}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Избранное
+    Route::get('/favorites', [\App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/courses/{course}/favorite', [\App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    // Скачивание материалов урока
+    Route::get('/lessons/{lesson}/attachments/{attachment}/download', [LessonController::class, 'downloadAttachment'])->name('lessons.attachment.download');
+
+    // Статистика для преподавателей
+    Route::get('/teacher/stats', [\App\Http\Controllers\TeacherStatsController::class, 'index'])->name('teacher.stats.index');
+    Route::get('/teacher/stats/course/{course}', [\App\Http\Controllers\TeacherStatsController::class, 'courseStats'])->name('teacher.stats.course');
 
     // Управление курсами (для преподавателей)
     Route::middleware('can:create,App\Models\Course')->group(function () {

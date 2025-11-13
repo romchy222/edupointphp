@@ -56,7 +56,10 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Регистрация успешна!');
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
+
+        return redirect()->route('home')->with('success', 'Регистрация успешна! Пожалуйста, подтвердите свой email.');
     }
 
     public function logout(Request $request)

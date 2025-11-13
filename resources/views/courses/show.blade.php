@@ -2,6 +2,30 @@
 
 @section('title', $course->title . ' - EduPoint')
 
+@push('styles')
+<style>
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+    .rating-input label {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #ddd;
+        margin: 0 2px;
+    }
+    .rating-input label:hover,
+    .rating-input label:hover ~ label,
+    .rating-input input[type="radio"]:checked ~ label {
+        color: #ffc107;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row">
     <div class="col-lg-8">
@@ -18,10 +42,27 @@
                 </span>
             @endif
             
+            <span class="badge bg-{{ $course->getLevelBadgeClass() }}">
+                <i class="bi bi-bar-chart"></i> {{ $course->getLevelLabel() }}
+            </span>
+
+            @if($course->duration_hours)
+                <span class="badge bg-info">
+                    <i class="bi bi-clock"></i> {{ $course->getFormattedDuration() }}
+                </span>
+            @endif
+
+            <span class="badge bg-primary">
+                <i class="bi bi-book"></i> {{ $course->lessons->count() }} уроков
+            </span>
+            
             @if($course->tags->count() > 0)
-                @foreach($course->tags as $tag)
+                @foreach($course->tags->take(3) as $tag)
                     <span class="badge bg-secondary">{{ $tag->name }}</span>
                 @endforeach
+                @if($course->tags->count() > 3)
+                    <span class="badge bg-secondary">+{{ $course->tags->count() - 3 }}</span>
+                @endif
             @endif
         </div>
         
@@ -49,6 +90,28 @@
             <h4>Описание курса</h4>
             <p>{{ $course->description }}</p>
         </div>
+
+        @if($course->what_you_will_learn)
+            <div class="card mb-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Чему вы научитесь</h5>
+                </div>
+                <div class="card-body">
+                    <div style="white-space: pre-line;">{{ $course->what_you_will_learn }}</div>
+                </div>
+            </div>
+        @endif
+
+        @if($course->requirements)
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Требования</h5>
+                </div>
+                <div class="card-body">
+                    <div style="white-space: pre-line;">{{ $course->requirements }}</div>
+                </div>
+            </div>
+        @endif
 
         <div class="mb-4">
             <h4><i class="bi bi-list-ul"></i> Программа курса ({{ $course->lessons->count() }} уроков)</h4>
@@ -154,6 +217,114 @@
                 </div>
             </div>
         @endif
+
+        <!-- Отзывы -->
+        <div class="mb-4">
+            <h4>
+                <i class="bi bi-star-fill text-warning"></i> Отзывы 
+                @if($course->reviews->count() > 0)
+                    <span class="badge bg-secondary">{{ $course->reviews->count() }}</span>
+                @endif
+            </h4>
+
+            @if($course->reviews->avg('rating'))
+                <div class="mb-3">
+                    <div class="d-flex align-items-center">
+                        <h2 class="me-3 mb-0">{{ number_format($course->reviews->avg('rating'), 1) }}</h2>
+                        <div>
+                            @php
+                                $avgRating = $course->reviews->avg('rating');
+                            @endphp
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= $avgRating)
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                @elseif($i - 0.5 <= $avgRating)
+                                    <i class="bi bi-star-half text-warning"></i>
+                                @else
+                                    <i class="bi bi-star text-muted"></i>
+                                @endif
+                            @endfor
+                            <div class="text-muted small">на основе {{ $course->reviews->count() }} отзывов</div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @auth
+                @if($isEnrolled && !$hasReviewed)
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Оставить отзыв</h6>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('reviews.store', $course) }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label">Оценка</label>
+                                    <div class="rating-input">
+                                        @for($i = 5; $i >= 1; $i--)
+                                            <input type="radio" name="rating" value="{{ $i }}" id="star{{ $i }}" required>
+                                            <label for="star{{ $i }}"><i class="bi bi-star-fill"></i></label>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="comment" class="form-label">Комментарий</label>
+                                    <textarea class="form-control @error('comment') is-invalid @enderror" 
+                                              id="comment" 
+                                              name="comment" 
+                                              rows="3" 
+                                              required>{{ old('comment') }}</textarea>
+                                    @error('comment')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send"></i> Отправить отзыв
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+            @endauth
+
+            @if($course->reviews->count() > 0)
+                @foreach($course->reviews as $review)
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ $review->user->name }}</h6>
+                                    <div>
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="bi bi-star{{ $i <= $review->rating ? '-fill text-warning' : ' text-muted' }}"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                            </div>
+                            <p class="mb-0">{{ $review->comment }}</p>
+                            @auth
+                                @if(auth()->id() === $review->user_id)
+                                    <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger mt-2" 
+                                                onclick="return confirm('Удалить отзыв?')">
+                                            <i class="bi bi-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                @endif
+                            @endauth
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Отзывов пока нет. Будьте первым!
+                </div>
+            @endif
+        </div>
     </div>
 
     <div class="col-lg-4">
@@ -166,6 +337,23 @@
                     <a href="{{ route('login') }}" class="btn btn-primary w-100">Войти</a>
                 @else
                     @if($isEnrolled)
+                        <!-- Progress Widget -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">Ваш прогресс</span>
+                                <span class="fw-bold text-primary">{{ $progress }}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-gradient" 
+                                     style="width: {{ $progress }}%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"
+                                     role="progressbar">
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                {{ $completedLessons ?? 0 }} из {{ $course->lessons->count() }} уроков завершено
+                            </div>
+                        </div>
+
                         @if($progress == 100)
                             <div class="alert alert-success">
                                 <i class="bi bi-trophy"></i> Курс завершен!
@@ -194,11 +382,25 @@
                     @else
                         <form action="{{ route('courses.enroll', $course) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-success w-100">
+                            <button type="submit" class="btn btn-success w-100 mb-2">
                                 <i class="bi bi-bookmark-plus"></i> Записаться на курс
                             </button>
                         </form>
                     @endif
+
+                    <!-- Кнопка избранного -->
+                    <form action="{{ route('favorites.toggle', $course) }}" method="POST" class="mt-2">
+                        @csrf
+                        @if($course->isFavoritedBy(auth()->user()))
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-heart-fill"></i> В избранном
+                            </button>
+                        @else
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-heart"></i> Добавить в избранное
+                            </button>
+                        @endif
+                    </form>
 
                     @if(auth()->user()->isTeacher() && auth()->id() == $course->teacher_id)
                         <hr>
@@ -222,6 +424,29 @@
                         <li><i class="bi bi-clipboard-check"></i> {{ $course->tests->count() }} тестов</li>
                     @endif
                 </ul>
+
+                <hr>
+                <h6 class="mb-2"><i class="bi bi-share"></i> Поделиться</h6>
+                <div class="d-flex gap-2">
+                    <a href="https://vk.com/share.php?url={{ urlencode(route('courses.show', $course)) }}&title={{ urlencode($course->title) }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-outline-primary flex-grow-1"
+                       title="Поделиться в VK">
+                        <i class="bi bi-share"></i> VK
+                    </a>
+                    <a href="https://t.me/share/url?url={{ urlencode(route('courses.show', $course)) }}&text={{ urlencode($course->title) }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-outline-info flex-grow-1"
+                       title="Поделиться в Telegram">
+                        <i class="bi bi-telegram"></i> TG
+                    </a>
+                    <a href="https://wa.me/?text={{ urlencode($course->title . ' ' . route('courses.show', $course)) }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-outline-success flex-grow-1"
+                       title="Поделиться в WhatsApp">
+                        <i class="bi bi-whatsapp"></i> WA
+                    </a>
+                </div>
             </div>
         </div>
     </div>

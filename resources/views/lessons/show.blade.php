@@ -16,24 +16,12 @@
         <h1>{{ $lesson->title }}</h1>
 
         @if($lesson->video_url)
-            <div class="ratio ratio-16x9 mb-4">
-                @if(str_contains($lesson->video_url, 'youtube.com') || str_contains($lesson->video_url, 'youtu.be'))
-                    @php
-                        $videoId = '';
-                        if (preg_match('/youtube\.com\/watch\?v=([^&]+)/', $lesson->video_url, $matches)) {
-                            $videoId = $matches[1];
-                        } elseif (preg_match('/youtu\.be\/([^?]+)/', $lesson->video_url, $matches)) {
-                            $videoId = $matches[1];
-                        }
-                    @endphp
-                    @if($videoId)
-                        <iframe src="https://www.youtube.com/embed/{{ $videoId }}" allowfullscreen></iframe>
-                    @endif
-                @else
-                    <video controls class="w-100">
-                        <source src="{{ $lesson->video_url }}" type="video/mp4">
-                    </video>
-                @endif
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="ratio ratio-16x9">
+                        {!! $lesson->getEmbeddedVideoHtml() !!}
+                    </div>
+                </div>
             </div>
         @endif
 
@@ -46,13 +34,54 @@
             </div>
         </div>
 
-        @if($lesson->file_path)
+        @if($lesson->file_path || $lesson->attachments->count() > 0)
             <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-download"></i> Материалы к уроку</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-download"></i> Материалы урока</h5>
-                    <a href="{{ asset('storage/' . $lesson->file_path) }}" class="btn btn-outline-primary" download>
-                        <i class="bi bi-file-earmark-arrow-down"></i> Скачать материалы
-                    </a>
+                    @if($lesson->file_path)
+                        <div class="d-flex align-items-center justify-content-between p-3 border rounded mb-2">
+                            <div>
+                                <i class="bi bi-file-earmark-arrow-down text-primary fs-3 me-3"></i>
+                                <span class="fw-bold">Основной материал</span>
+                            </div>
+                            <a href="{{ asset('storage/' . $lesson->file_path) }}" 
+                               class="btn btn-outline-primary" 
+                               download>
+                                <i class="bi bi-download"></i> Скачать
+                            </a>
+                        </div>
+                    @endif
+
+                    @foreach($lesson->attachments as $attachment)
+                        <div class="d-flex align-items-center justify-content-between p-3 border rounded mb-2">
+                            <div>
+                                @php
+                                    $iconClass = match($attachment->file_type) {
+                                        'pdf' => 'bi-file-pdf text-danger',
+                                        'zip', 'rar' => 'bi-file-zip text-warning',
+                                        'doc', 'docx' => 'bi-file-word text-primary',
+                                        'xls', 'xlsx' => 'bi-file-excel text-success',
+                                        'ppt', 'pptx' => 'bi-file-ppt text-danger',
+                                        default => 'bi-file-earmark text-secondary',
+                                    };
+                                @endphp
+                                <i class="bi {{ $iconClass }} fs-3 me-3"></i>
+                                <div class="d-inline-block">
+                                    <span class="fw-bold">{{ $attachment->title }}</span>
+                                    <div class="small text-muted">
+                                        {{ $attachment->file_size_human }} • 
+                                        Скачали: {{ $attachment->download_count }} раз
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ route('lessons.attachment.download', [$lesson, $attachment]) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-download"></i> Скачать
+                            </a>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         @endif

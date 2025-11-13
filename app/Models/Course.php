@@ -21,11 +21,16 @@ class Course extends Model
         'teacher_id',
         'category_id',
         'status',
+        'duration_hours',
+        'level',
+        'requirements',
+        'what_you_will_learn',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'deadline' => 'date',
+        'duration_hours' => 'integer',
     ];
 
     public function teacher(): BelongsTo
@@ -101,5 +106,66 @@ class Course extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'course_favorites')
+            ->withTimestamps();
+    }
+
+    public function isFavoritedBy(User $user): bool
+    {
+        return $this->favoritedBy()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Get formatted duration string
+     */
+    public function getFormattedDuration(): string
+    {
+        if (!$this->duration_hours) {
+            return 'Не указано';
+        }
+        
+        if ($this->duration_hours < 1) {
+            return round($this->duration_hours * 60) . ' минут';
+        }
+        
+        if ($this->duration_hours == 1) {
+            return '1 час';
+        }
+        
+        if ($this->duration_hours < 5) {
+            return $this->duration_hours . ' часа';
+        }
+        
+        return $this->duration_hours . ' часов';
+    }
+
+    /**
+     * Get level badge color
+     */
+    public function getLevelBadgeClass(): string
+    {
+        return match($this->level) {
+            'beginner' => 'success',
+            'intermediate' => 'warning',
+            'advanced' => 'danger',
+            default => 'secondary',
+        };
+    }
+
+    /**
+     * Get level label in Russian
+     */
+    public function getLevelLabel(): string
+    {
+        return match($this->level) {
+            'beginner' => 'Начальный',
+            'intermediate' => 'Средний',
+            'advanced' => 'Продвинутый',
+            default => 'Не указан',
+        };
     }
 }

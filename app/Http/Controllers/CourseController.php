@@ -10,13 +10,25 @@ class CourseController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Course::where('status', 'published')->with('teacher');
+        $query = Course::where('status', 'published')->with(['teacher', 'category', 'tags']);
 
         // Поиск
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Фильтр по категории
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Фильтр по тегам
+        if ($request->filled('tag')) {
+            $query->whereHas('tags', function($q) use ($request) {
+                $q->where('tags.id', $request->tag);
             });
         }
 
@@ -67,6 +79,7 @@ class CourseController extends Controller
 
         // Популярные курсы
         $popularCourses = Course::where('status', 'published')
+            ->with(['category', 'tags', 'teacher'])
             ->withCount('enrollments')
             ->orderBy('enrollments_count', 'desc')
             ->take(3)
@@ -78,26 +91,35 @@ class CourseController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('courses.index', compact('courses', 'stats', 'popularCourses', 'teachers'));
+        // Категории и теги для фильтров
+        $categories = \App\Models\Category::orderBy('name')->get();
+        $tags = \App\Models\Tag::orderBy('name')->get();
+
+        return view('courses.index', compact('courses', 'stats', 'popularCourses', 'teachers', 'categories', 'tags'));
     }
 
     public function show(Course $course): View
     {
-        $course->load(['teacher', 'lessons', 'tests', 'reviews.user']);
+        $course->load(['teacher', 'lessons', 'tests', 'reviews.user', 'category', 'tags']);
         
         $isEnrolled = false;
         $progress = 0;
+        $completedLessons = 0;
         $hasReviewed = false;
 
         if (auth()->check()) {
             $isEnrolled = $course->isEnrolledBy(auth()->user());
             if ($isEnrolled) {
                 $progress = $course->getProgressFor(auth()->user());
+                $completedLessons = \App\Models\LessonProgress::whereIn('lesson_id', $course->lessons->pluck('id'))
+                    ->where('user_id', auth()->id())
+                    ->where('completed', true)
+                    ->count();
             }
             $hasReviewed = $course->reviews()->where('user_id', auth()->id())->exists();
         }
 
-        return view('courses.show', compact('course', 'isEnrolled', 'progress', 'hasReviewed'));
+        return view('courses.show', compact('course', 'isEnrolled', 'progress', 'completedLessons', 'hasReviewed'));
     }
 
     public function myCourses(): View

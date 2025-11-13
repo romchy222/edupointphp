@@ -250,6 +250,150 @@
                 </div>
             </div>
 
+            <!-- Настройки оплаты -->
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-credit-card"></i> Настройки оплаты</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Важно:</strong> Эти настройки управляют системой оплаты. 
+                        Тестовый режим позволяет проверить функционал без реальных платежей.
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="payment_enabled" 
+                                   name="payment[enabled]" 
+                                   value="1"
+                                   {{ ($settings['payment']['enabled'] ?? config('payment.enabled')) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="payment_enabled">
+                                <strong>Включить систему оплаты</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">Разрешить платные курсы на платформе</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="payment_test_mode" 
+                                   name="payment[test_mode]" 
+                                   value="1"
+                                   {{ ($settings['payment']['test_mode'] ?? config('payment.test_mode')) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="payment_test_mode">
+                                <strong>Тестовый режим</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">
+                            В тестовом режиме реальные платежи не производятся. 
+                            Отключите для работы с реальными деньгами.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Валюта</label>
+                        <select name="payment[currency]" class="form-select">
+                            <option value="RUB" {{ ($settings['payment']['currency'] ?? 'RUB') == 'RUB' ? 'selected' : '' }}>Российский рубль (₽)</option>
+                            <option value="USD" {{ ($settings['payment']['currency'] ?? 'RUB') == 'USD' ? 'selected' : '' }}>Доллар США ($)</option>
+                            <option value="EUR" {{ ($settings['payment']['currency'] ?? 'RUB') == 'EUR' ? 'selected' : '' }}>Евро (€)</option>
+                            <option value="KZT" {{ ($settings['payment']['currency'] ?? 'RUB') == 'KZT' ? 'selected' : '' }}>Казахстанский тенге (₸)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Комиссия платформы (%)</label>
+                        <input type="number" 
+                               name="payment[platform_commission]" 
+                               class="form-control" 
+                               value="{{ $settings['payment']['platform_commission'] ?? config('payment.platform_commission') }}" 
+                               min="0" 
+                               max="100">
+                        <small class="text-muted">Процент, который платформа берет с каждой продажи курса</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Минимальная цена курса</label>
+                        <input type="number" 
+                               name="payment[min_course_price]" 
+                               class="form-control" 
+                               value="{{ $settings['payment']['min_course_price'] ?? config('payment.min_course_price') }}" 
+                               min="0">
+                        <small class="text-muted">Минимальная цена, которую можно установить для платного курса</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="coupons_enabled" 
+                                   name="payment[coupons_enabled]" 
+                                   value="1"
+                                   {{ ($settings['payment']['coupons_enabled'] ?? config('payment.coupons_enabled')) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="coupons_enabled">
+                                <strong>Включить купоны и промокоды</strong>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="mb-3">Платежные шлюзы</h6>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="stripe_enabled" 
+                                   name="payment[stripe_enabled]" 
+                                   value="1"
+                                   {{ ($settings['payment']['stripe_enabled'] ?? false) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="stripe_enabled">
+                                <strong>Stripe</strong>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="paypal_enabled" 
+                                   name="payment[paypal_enabled]" 
+                                   value="1"
+                                   {{ ($settings['payment']['paypal_enabled'] ?? false) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="paypal_enabled">
+                                <strong>PayPal</strong>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="kaspi_enabled" 
+                                   name="payment[kaspi_enabled]" 
+                                   value="1"
+                                   {{ ($settings['payment']['kaspi_enabled'] ?? false) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="kaspi_enabled">
+                                <strong>Kaspi (Казахстан)</strong>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        <strong>Примечание:</strong> Для работы платежных шлюзов необходимо настроить 
+                        соответствующие ключи API в файле .env
+                    </div>
+                </div>
+            </div>
+
             <div class="text-end mb-4">
                 <button type="submit" class="btn btn-primary btn-lg">
                     <i class="bi bi-save"></i> Сохранить все настройки

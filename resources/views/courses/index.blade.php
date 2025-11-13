@@ -96,11 +96,28 @@
                         <div class="bg-gradient" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
                     @endif
                     <div class="card-body">
-                        <span class="badge bg-warning text-dark mb-2">
-                            <i class="bi bi-fire"></i> Популярный
-                        </span>
+                        <div class="mb-2">
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-fire"></i> Популярный
+                            </span>
+                            @if($course->category)
+                                <span class="badge" style="background-color: {{ $course->category->color }}">
+                                    <i class="bi {{ $course->category->icon }}"></i> {{ $course->category->name }}
+                                </span>
+                            @endif
+                        </div>
                         <h5 class="card-title">{{ $course->title }}</h5>
                         <p class="card-text text-muted small">{{ Str::limit($course->description, 100) }}</p>
+                        @if($course->tags->count() > 0)
+                            <div class="mb-2">
+                                @foreach($course->tags->take(3) as $tag)
+                                    <span class="badge bg-light text-dark border me-1">{{ $tag->name }}</span>
+                                @endforeach
+                                @if($course->tags->count() > 3)
+                                    <span class="badge bg-light text-dark border">+{{ $course->tags->count() - 3 }}</span>
+                                @endif
+                            </div>
+                        @endif
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <span class="text-muted small">
                                 <i class="bi bi-person"></i> {{ $course->teacher->name }}
@@ -134,18 +151,44 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="card mb-4">
+    <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <form method="GET" action="{{ route('courses.index') }}">
-                <div class="row g-3">
-                    <div class="col-md-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Поиск</label>
                         <input type="text" 
                                name="search" 
                                class="form-control" 
-                               placeholder="Поиск по названию..." 
+                               placeholder="Поиск по названию или описанию..." 
                                value="{{ request('search') }}">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Категория</label>
+                        <select name="category" class="form-select">
+                            <option value="">Все категории</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Тег</label>
+                        <select name="tag" class="form-select">
+                            <option value="">Все теги</option>
+                            @foreach($tags as $tag)
+                                <option value="{{ $tag->id }}" {{ request('tag') == $tag->id ? 'selected' : '' }}>
+                                    {{ $tag->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Цена</label>
                         <select name="price" class="form-select">
                             <option value="">Все цены</option>
                             <option value="free" {{ request('price') == 'free' ? 'selected' : '' }}>Бесплатно</option>
@@ -153,6 +196,7 @@
                         </select>
                     </div>
                     <div class="col-md-3">
+                        <label class="form-label small text-muted">Преподаватель</label>
                         <select name="teacher" class="form-select">
                             <option value="">Все преподаватели</option>
                             @foreach($teachers as $teacher)
@@ -162,7 +206,8 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Сортировка</label>
                         <select name="sort" class="form-select">
                             <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Новые</option>
                             <option value="popular" {{ request('sort') == 'popular' ? 'selected' : '' }}>Популярные</option>
@@ -170,16 +215,16 @@
                             <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Цена ↓</option>
                         </select>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search"></i> Применить
                         </button>
                     </div>
                 </div>
-                @if(request()->anyFilled(['search', 'price', 'teacher', 'sort']))
-                    <div class="mt-2">
+                @if(request()->anyFilled(['search', 'category', 'tag', 'price', 'teacher', 'sort']))
+                    <div class="mt-3">
                         <a href="{{ route('courses.index') }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> Сбросить фильтры
+                            <i class="bi bi-x-circle"></i> Сбросить все фильтры
                         </a>
                     </div>
                 @endif
@@ -204,8 +249,40 @@
                             </div>
                         @endif
                         <div class="card-body">
+                            <div class="mb-2">
+                                @if($course->category)
+                                    <span class="badge" style="background-color: {{ $course->category->color }}">
+                                        <i class="bi {{ $course->category->icon }}"></i> {{ $course->category->name }}
+                                    </span>
+                                @endif
+                                @if($course->duration_hours)
+                                    <span class="badge bg-info text-dark">
+                                        <i class="bi bi-clock"></i> {{ $course->getFormattedDuration() }}
+                                    </span>
+                                @endif
+                                <span class="badge bg-{{ $course->getLevelBadgeClass() }}">
+                                    {{ $course->getLevelLabel() }}
+                                </span>
+                            </div>
                             <h5 class="card-title">{{ $course->title }}</h5>
                             <p class="card-text text-muted small">{{ Str::limit($course->description, 100) }}</p>
+                            @if($course->tags->count() > 0)
+                                <div class="mb-2">
+                                    @foreach($course->tags->take(3) as $tag)
+                                        <span class="badge bg-light text-dark border me-1">{{ $tag->name }}</span>
+                                    @endforeach
+                                    @if($course->tags->count() > 3)
+                                        <span class="badge bg-light text-dark border">+{{ $course->tags->count() - 3 }}</span>
+                                    @endif
+                                </div>
+                            @endif
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-star-fill text-warning"></i> 
+                                    {{ $course->averageRating() }} 
+                                    <span class="text-muted">({{ $course->reviewsCount() }})</span>
+                                </small>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted small">
                                     <i class="bi bi-person"></i> {{ $course->teacher->name }}
